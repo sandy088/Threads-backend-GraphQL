@@ -1,4 +1,5 @@
 import { prismaClient } from '../../lib/db';
+import UserServices, { UserPayload, UserTokenPayload } from '../../services/user';
 
 const queries = {
     hello: ()=> {
@@ -7,21 +8,17 @@ const queries = {
 
         say:(_:any,{name}:{name:string})=> {
             return `Hey ${name} I am a GraphQL server`
-        } 
+        } ,
+
+        getUserToken : async (_:any, payload: UserTokenPayload) => {
+            const token = await UserServices.createToken(payload);
+            return token;
+        }
 }
 const mutations = {
-    createUser: async (_:any, { firstName, lastName, profileImageURL, email, password }: { firstName: string, lastName: string, profileImageURL: string, email: string, password: string }) => {
-        await prismaClient.user.create({
-            data: {
-                firstName,
-                lastName,
-                profileImageURL,
-                email,
-                password,
-                salt: "1234"
-            }
-        })
-        return true
+    createUser: async (_:any, payload : UserPayload) => {
+       const res = await UserServices.createUser(payload);
+       return res.email;
     }
 }
 
